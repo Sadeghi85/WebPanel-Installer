@@ -1,0 +1,24 @@
+[ius-archive]
+priority=1
+name=IUS Community Packages for Enterprise Linux 7 - $basearch - Archive
+baseurl=https://dl.iuscommunity.org/pub/ius/archive/CentOS/7/$basearch
+mirrorlist=https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-archive&arch=$basearch&protocol=http
+failovermethod=priority
+enabled=0
+gpgcheck=0
+
+[ius-archive-debuginfo]
+name=IUS Community Packages for Enterprise Linux 7 - $basearch - Archive Debug
+baseurl=https://dl.iuscommunity.org/pub/ius/archive/CentOS/7/$basearch/debuginfo
+mirrorlist=https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-archive-debuginfo&arch=$basearch&protocol=http
+failovermethod=priority
+enabled=0
+gpgcheck=0
+
+[ius-archive-source]
+name=IUS Community Packages for Enterprise Linux 7 - $basearch - Archive Source
+baseurl=https://dl.iuscommunity.org/pub/ius/archive/CentOS/7/SRPMS
+mirrorlist=https://mirrors.iuscommunity.org/mirrorlist?repo=ius-centos7-archive-source&arch=source&protocol=http
+failovermethod=priority
+enabled=0
+gpgcheck=0
