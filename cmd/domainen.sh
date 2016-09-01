@@ -36,7 +36,7 @@ if ! $(echo "$SERVER_PORT" | grep -Pqs "^\d+$"); then
 	exit 1
 fi
 
-## enabling config files
+## Enabling config files
 # php-fpm
 STATUS=$(ln -fs "../sites-available/$SERVER_TAG.conf" "/etc/php-fpm.d/settings/sites-enabled/$SERVER_TAG.conf" 2>&1)
 if (( $? != 0 )); then
@@ -46,15 +46,6 @@ if (( $? != 0 )); then
 fi
 STATUS=$(ln -fs "../sites-available/$SERVER_TAG.conf" "/etc/php-fpm.d/settings/sites-enabled-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)
 
-# apache
-STATUS=$(ln -fs "../sites-available/$SERVER_TAG.conf" "/etc/httpd/settings/sites-enabled/$SERVER_TAG.conf" 2>&1)
-if (( $? != 0 )); then
-	echo "$STATUS"
-	STATUS=$(sh "$SCRIPT_DIR/domaindis.sh $SERVER_TAG $SERVER_NAME $SERVER_PORT" 2>&1)
-	exit 1
-fi
-STATUS=$(ln -fs "../sites-available/$SERVER_TAG.conf" "/etc/httpd/settings/sites-enabled-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)
-
 # nginx
 STATUS=$(ln -fs "../sites-available/$SERVER_TAG.conf" "/etc/nginx/settings/sites-enabled/$SERVER_TAG.conf" 2>&1)
 if (( $? != 0 )); then
@@ -63,15 +54,6 @@ if (( $? != 0 )); then
 	exit 1
 fi
 STATUS=$(ln -fs "../sites-available/$SERVER_TAG.conf" "/etc/nginx/settings/sites-enabled-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)
-
-# webalizer
-STATUS=$(ln -fs "../sites-available/$SERVER_TAG.conf" "/etc/webalizer.d/settings/sites-enabled/$SERVER_TAG.conf" 2>&1)
-if (( $? != 0 )); then
-	echo "$STATUS"
-	STATUS=$(sh "$SCRIPT_DIR/domaindis.sh $SERVER_TAG $SERVER_NAME $SERVER_PORT" 2>&1)
-	exit 1
-fi
-STATUS=$(ln -fs "../sites-available/$SERVER_TAG.conf" "/etc/webalizer.d/settings/sites-enabled-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)
 
 # web
 STATUS=$(ln -fs "../sites-available/$SERVER_TAG/" "$HOME/sites-enabled/$SERVER_TAG" 2>&1)

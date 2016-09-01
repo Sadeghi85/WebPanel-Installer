@@ -36,14 +36,14 @@ if ! $(echo "$SERVER_PORT" | grep -Pqs "^\d+$"); then
 	exit 1
 fi
 
-## deleting *enabled* config files
+## Deleting *enabled* config files
 STATUS=$(sh "$SCRIPT_DIR/domaindis.sh" "$SERVER_TAG" "$SERVER_NAME" "$SERVER_PORT" 2>&1)
 if (( $? != 0 )); then
 	echo "$STATUS"
 	exit 1
 fi
 
-## deleting *available* config files
+## Deleting *available* config files
 # php-fpm
 STATUS=$(\rm -f "/etc/php-fpm.d/settings/sites-available/$SERVER_TAG.conf" 2>&1)
 if (( $? != 0 )); then
@@ -51,14 +51,6 @@ if (( $? != 0 )); then
 	exit 1
 fi
 STATUS=$(\rm -f "/etc/php-fpm.d/settings/sites-available-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)
-
-# apache
-STATUS=$(\rm -f "/etc/httpd/settings/sites-available/$SERVER_TAG.conf" 2>&1)
-if (( $? != 0 )); then
-	echo "$STATUS"
-	exit 1
-fi
-STATUS=$(\rm -f "/etc/httpd/settings/sites-available-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)
 
 # nginx
 STATUS=$(\rm -f "/etc/nginx/settings/sites-available/$SERVER_TAG.conf" 2>&1)
@@ -68,17 +60,10 @@ if (( $? != 0 )); then
 fi
 STATUS=$(\rm -f "/etc/nginx/settings/sites-available-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)
 
-# webalizer
-STATUS=$(\rm -f "/etc/webalizer.d/settings/sites-available/$SERVER_TAG.conf" 2>&1)
-if (( $? != 0 )); then
-	echo "$STATUS"
-	exit 1
-fi
-STATUS=$(\rm -f "/etc/webalizer.d/settings/sites-available-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)
-
+### TODO: DNS Server
 ##################### removing server_name from /etc/hosts
-SERVER_NAME_ESCAPED=$(sed 's/[\*\.&\/]/\\&/g' <<<"$SERVER_NAME")
-STATUS=$(sed -i -e"s/127.0.0.1 $SERVER_NAME_ESCAPED//" "/etc/hosts" 2>&1)
+#SERVER_NAME_ESCAPED=$(sed 's/[\*\.&\/]/\\&/g' <<<"$SERVER_NAME")
+#STATUS=$(sed -i -e"s/127.0.0.1 $SERVER_NAME_ESCAPED//" "/etc/hosts" 2>&1)
 
 # deleting user
 STATUS=$(userdel "$SERVER_TAG" 2>&1)
