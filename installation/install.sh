@@ -72,9 +72,9 @@ STATUS=$(yum check-update 2>&1)
 yum -y install yum-plugin-priorities yum-plugin-rpm-warm-cache yum-plugin-local deltarpm yum-plugin-fastestmirror
 
 # installing packages
-yum -y install htop nmap iftop iotop bind-utils wget 
+yum -y install htop nmap iftop iotop bind-utils mailx wget unzip
 # TODO: install `php70u-pecl-memcached` when released
-yum -y install MariaDB-server MariaDB-client nginx memcached redis32u php70u-cli php70u-fpm php70u-gd php70u-intl php70u-json php70u-mbstring php70u-mcrypt php70u-mysqlnd php70u-opcache php70u-pdo php70u-pear php70u-pecl-apcu php70u-pecl-redis php70u-xml
+yum -y install MariaDB-server MariaDB-client nginx memcached php70u-cli php70u-fpm php70u-gd php70u-intl php70u-json php70u-mbstring php70u-mcrypt php70u-mysqlnd php70u-opcache php70u-pdo php70u-pear php70u-pecl-apcu php70u-xml
 
 # update operating system
 yum -y update
@@ -119,6 +119,9 @@ mkdir -p /etc/php-fpm.d/settings/sites-enabled-for-humans
 
 \cp /etc/php-fpm.conf /etc/php-fpm.conf.bak
 \cp "$SCRIPT_DIR/settings/php-fpm/php-fpm.conf" /etc/php-fpm.conf
+
+\cp "$SCRIPT_DIR/settings/php-fpm/logrotate.d.php-fpm" /etc/logrotate.d/php-fpm
+chmod 770 /var/log/php-fpm
 
 # PHP
 \cp /etc/php.ini /etc/php.ini.bak

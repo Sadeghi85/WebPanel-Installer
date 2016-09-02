@@ -43,23 +43,16 @@ if [[ ! -e "$HOME/sites-available/$SERVER_TAG" ]]; then
 
 	# Creating session,soap and opcache directories
 	STATUS=$(mkdir -p "/var/lib/php/fpm/session/$SERVER_TAG" 2>&1)
-	if (( $? != 0 )); then
-		echo "$STATUS"
-		STATUS=$(sh "$SCRIPT_DIR/domaindis.sh $SERVER_TAG $SERVER_NAME $SERVER_PORT" 2>&1)
-		exit 1
-	fi
+	STATUS=$(chown "root:php-fpm" "/var/lib/php/fpm/session/$SERVER_TAG" 2>&1)
+	STATUS=$(chmod 770 "/var/lib/php/fpm/session/$SERVER_TAG" 2>&1)
+	
 	STATUS=$(mkdir -p "/var/lib/php/fpm/wsdlcache/$SERVER_TAG" 2>&1)
-	if (( $? != 0 )); then
-		echo "$STATUS"
-		STATUS=$(sh "$SCRIPT_DIR/domaindis.sh $SERVER_TAG $SERVER_NAME $SERVER_PORT" 2>&1)
-		exit 1
-	fi
+	STATUS=$(chown "root:php-fpm" "/var/lib/php/fpm/wsdlcache/$SERVER_TAG" 2>&1)
+	STATUS=$(chmod 770 "/var/lib/php/fpm/wsdlcache/$SERVER_TAG" 2>&1)
+	
 	STATUS=$(mkdir -p "/var/lib/php/fpm/opcache/$SERVER_TAG" 2>&1)
-	if (( $? != 0 )); then
-		echo "$STATUS"
-		STATUS=$(sh "$SCRIPT_DIR/domaindis.sh $SERVER_TAG $SERVER_NAME $SERVER_PORT" 2>&1)
-		exit 1
-	fi
+	STATUS=$(chown "root:php-fpm" "/var/lib/php/fpm/opcache/$SERVER_TAG" 2>&1)
+	STATUS=$(chmod 770 "/var/lib/php/fpm/opcache/$SERVER_TAG" 2>&1)
 	
 	# creating ftp home & web root
 	STATUS=$(mkdir -p "$HOME/sites-available/$SERVER_TAG/$WEB_ROOT_DIR" 2>&1)
