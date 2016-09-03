@@ -20,4 +20,11 @@ if (( $? != 0 )); then
 	exit 1
 fi
 
+# Testing Named
+STATUS=$(/usr/sbin/named-checkconf 2>&1)	
+if (( $? != 0 )); then
+	echo "$STATUS"
+	exit 1
+fi
+
 exit 0

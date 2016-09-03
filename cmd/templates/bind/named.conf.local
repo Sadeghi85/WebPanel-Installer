@@ -1,0 +1,8 @@
+zone "example.com" IN {
+	type master;
+	file "/etc/named/zones/example.com.zone";
+	allow-query     { any; };
+	allow-transfer { none; };
+	allow-update   { none; };
+};
+

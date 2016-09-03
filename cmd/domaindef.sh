@@ -22,6 +22,7 @@ fi
 SERVER_TAG=$(echo "$1" | tr '[A-Z]' '[a-z]')
 SERVER_NAME=$(echo "$2" | tr '[A-Z]' '[a-z]')
 SERVER_PORT="$3"
+SERVER_IP=$(echo $(hostname -I | cut -d" " -f 1))
 
 if ! $(echo "$SERVER_TAG" | grep -Pqs "^web\d{3}$"); then
 	echo "SERVER_TAG ($SERVER_TAG) is invalid."
@@ -166,6 +167,16 @@ if [[ ! -e "$HOME/sites-available/$SERVER_TAG" ]]; then
 	STATUS=$(ln -fs "../sites-available/$SERVER_TAG.conf" "/etc/nginx/settings/sites-available-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)
 	STATUS=$(ln -fs "../sites-available/$SERVER_TAG.conf" "/etc/nginx/settings/sites-enabled-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)
 	
+	##################### Adding server_name to DNS server
+	ZONE_SETTINGS=$(< "$SCRIPT_DIR/templates/bind/named.conf.local")
+	ZONE_SETTINGS=$(echo "$ZONE_SETTINGS" | sed -e "s/example\.com/$SERVER_NAME/g")
+	
+	STATUS=$(touch /etc/named/named.conf.local 2>&1)
+	STATUS=$(echo "$ZONE_SETTINGS" >> /etc/named/named.conf.local 2>&1)
+	
+	STATUS=$(\cp "$SCRIPT_DIR/templates/bind/example.com.zone" "/etc/named/zones/$SERVER_NAME.zone" 2>&1)
+	STATUS=$(sed -i -e"s/example\.com/$SERVER_NAME/g" -e"s/127\.0\.0\.1/$SERVER_IP/g" "/etc/named/zones/$SERVER_NAME.zone" 2>&1)
+	
 	##################### Reloading servers
 	STATUS=$(sh "$SCRIPT_DIR/reload_servers.sh" 2>&1)
 	if (( $? != 0 )); then
@@ -173,10 +184,6 @@ if [[ ! -e "$HOME/sites-available/$SERVER_TAG" ]]; then
 		STATUS=$(sh "$SCRIPT_DIR/domaindis.sh $SERVER_TAG $SERVER_NAME $SERVER_PORT" 2>&1)
 		exit 1
 	fi
-	
-	### TODO: DNS Server
-	##################### adding server_name to /etc/hosts
-	#STATUS=$(echo "127.0.0.1 $SERVER_NAME" >> /etc/hosts 2>&1)
 	
 else
 	echo "Directory ($HOME/sites-available/$SERVER_TAG) already exists."

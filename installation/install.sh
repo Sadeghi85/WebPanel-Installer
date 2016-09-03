@@ -133,9 +133,8 @@ chmod 770 /var/log/php-fpm
 # Bind
 \cp /etc/named.conf /etc/named.conf.bak
 \cp "$SCRIPT_DIR/settings/bind/named.conf" "/etc/named.conf"
-
+touch /etc/named/named.conf.local
 mkdir -p /etc/named/zones
-
 
 # Enabling servers
 systemctl enable php-fpm

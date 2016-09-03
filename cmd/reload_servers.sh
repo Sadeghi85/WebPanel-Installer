@@ -8,7 +8,7 @@ fi
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd -P)
 
-# in case some servers aren't already up
+# In case some servers aren't already up
 STATUS=$(/usr/bin/systemctl start php-fpm 2>&1)
 STATUS=$(ps aux | grep php[-]fpm 2>&1)
 if (( $? != 0 )); then
@@ -23,24 +23,39 @@ if (( $? != 0 )); then
 	exit 1
 fi
 
+STATUS=$(/usr/bin/systemctl start named 2>&1)
+STATUS=$(ps aux | grep nam[e]d 2>&1)
+if (( $? != 0 )); then
+	echo "$STATUS"
+	exit 1
+fi
+
+STATUS=$(/usr/bin/systemctl start redis 2>&1)
 STATUS=$(/usr/bin/systemctl start memcached 2>&1)
 
-# testing server configs
+# Testing server configs
 STATUS=$(sh "$SCRIPT_DIR/test_servers.sh" 2>&1)
 if (( $? != 0 )); then
 	echo "$STATUS"
 	exit 1
 fi
 
-# reloading php-fpm
+# Reloading php-fpm
 STATUS=$(/usr/bin/systemctl reload php-fpm 2>&1)
 if (( $? != 0 )); then
 	echo "$STATUS"
 	exit 1
 fi
 
-# reloading nginx
+# Reloading nginx
 STATUS=$(/usr/bin/systemctl reload nginx 2>&1)
+if (( $? != 0 )); then
+	echo "$STATUS"
+	exit 1
+fi
+
+# Reloading named
+STATUS=$(/usr/bin/systemctl reload named 2>&1)
 if (( $? != 0 )); then
 	echo "$STATUS"
 	exit 1
