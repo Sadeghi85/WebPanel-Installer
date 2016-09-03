@@ -74,7 +74,7 @@ yum -y install yum-plugin-priorities yum-plugin-rpm-warm-cache yum-plugin-local 
 # installing packages
 yum -y install htop nmap iftop iotop bind-utils mailx wget unzip
 # TODO: install `php70u-pecl-memcached` when released
-yum -y install MariaDB-server MariaDB-client nginx memcached php70u-cli php70u-fpm php70u-gd php70u-intl php70u-json php70u-mbstring php70u-mcrypt php70u-mysqlnd php70u-opcache php70u-pdo php70u-pear php70u-pecl-apcu php70u-xml
+yum -y install bind MariaDB-server MariaDB-client nginx memcached redis32u php70u-cli php70u-fpm php70u-gd php70u-intl php70u-json php70u-mbstring php70u-mcrypt php70u-mysqlnd php70u-opcache php70u-pdo php70u-pear php70u-pecl-apcu php70u-pecl-redis php70u-xml
 
 # update operating system
 yum -y update
@@ -130,18 +130,28 @@ chmod 770 /var/log/php-fpm
 \cp "/etc/php.d/10-opcache.ini" "/etc/php.d/10-opcache.ini.bak"
 \cp "$SCRIPT_DIR/settings/php/10-opcache.ini" "/etc/php.d/10-opcache.ini"
 
-# starting servers
+# Bind
+\cp /etc/named.conf /etc/named.conf.bak
+\cp "$SCRIPT_DIR/settings/bind/named.conf" "/etc/named.conf"
+
+mkdir -p /etc/named/zones
+
+
+# Enabling servers
 systemctl enable php-fpm
 systemctl enable mariadb
 systemctl enable memcached
 systemctl enable redis
 systemctl enable nginx
+systemctl enable named
 
-systemctl restart php-fpm
-systemctl restart mariadb
-systemctl restart memcached
-systemctl restart redis
-systemctl restart nginx
+# Starting servers
+systemctl start php-fpm
+systemctl start mariadb
+systemctl start memcached
+systemctl start redis
+systemctl start nginx
+systemctl start named
 
 #mysql_secure_installation
 mysql -u root <<EOF
