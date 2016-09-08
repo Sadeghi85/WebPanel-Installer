@@ -6,6 +6,7 @@ SCRIPT_DIR=$(cd $(dirname $0); pwd -P)
 WEB_ROOT_DIR="web"
 SHELL="/sbin/nologin"
 HOME="/var/www/WebPanel"
+MYSQL_ROOT_PSSWD="WebPanel"
 
 HOME=${HOME%/}
 if [[ $HOME == "" ]]; then
@@ -168,14 +169,47 @@ if [[ ! -e "$HOME/sites-available/$SERVER_TAG" ]]; then
 	STATUS=$(ln -fs "../sites-available/$SERVER_TAG.conf" "/etc/nginx/settings/sites-enabled-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)
 	
 	##################### Adding server_name to DNS server
-	ZONE_SETTINGS=$(< "$SCRIPT_DIR/templates/bind/named.conf.local")
-	ZONE_SETTINGS=$(echo "$ZONE_SETTINGS" | sed -e "s/example\.com/$SERVER_NAME/g")
-	
 	STATUS=$(touch /etc/named/named.conf.local 2>&1)
-	STATUS=$(echo "$ZONE_SETTINGS" >> /etc/named/named.conf.local 2>&1)
+	
+	STATUS=$(grep -Fq "\"$SERVER_NAME\"" /etc/named/named.conf.local 2>&1)
+	if (( $? != 0 )); then
+		ZONE_SETTINGS=$(< "$SCRIPT_DIR/templates/bind/named.conf.local")
+		ZONE_SETTINGS=$(echo "$ZONE_SETTINGS" | sed -e "s/example\.com/$SERVER_NAME/g")
+		STATUS=$(echo "$ZONE_SETTINGS" >> /etc/named/named.conf.local 2>&1)
+		if (( $? != 0 )); then
+			echo "$STATUS"
+			STATUS=$(sh "$SCRIPT_DIR/domaindis.sh $SERVER_TAG $SERVER_NAME $SERVER_PORT" 2>&1)
+			exit 1
+		fi
+	fi
 	
 	STATUS=$(\cp "$SCRIPT_DIR/templates/bind/example.com.zone" "/etc/named/zones/$SERVER_NAME.zone" 2>&1)
+	if (( $? != 0 )); then
+		echo "$STATUS"
+		STATUS=$(sh "$SCRIPT_DIR/domaindis.sh $SERVER_TAG $SERVER_NAME $SERVER_PORT" 2>&1)
+		exit 1
+	fi
+	
 	STATUS=$(sed -i -e"s/example\.com/$SERVER_NAME/g" -e"s/127\.0\.0\.1/$SERVER_IP/g" "/etc/named/zones/$SERVER_NAME.zone" 2>&1)
+	if (( $? != 0 )); then
+		echo "$STATUS"
+		STATUS=$(sh "$SCRIPT_DIR/domaindis.sh $SERVER_TAG $SERVER_NAME $SERVER_PORT" 2>&1)
+		exit 1
+	fi
+	
+	##################### Creating MySQL Database and User
+	STATUS=$(mysql -u root -p${MYSQL_ROOT_PSSWD} <<EOF
+CREATE DATABASE ${SERVER_TAG} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER ${SERVER_TAG}@127.0.0.1 IDENTIFIED BY '${SERVER_PORT}.${SERVER_NAME}';
+GRANT ALL PRIVILEGES ON ${SERVER_TAG}.* TO '${SERVER_TAG}'@'127.0.0.1';
+FLUSH PRIVILEGES;
+EOF 2>&1)
+	
+	if (( $? != 0 )); then
+		echo "$STATUS"
+		STATUS=$(sh "$SCRIPT_DIR/domaindis.sh $SERVER_TAG $SERVER_NAME $SERVER_PORT" 2>&1)
+		exit 1
+	fi
 	
 	##################### Reloading servers
 	STATUS=$(sh "$SCRIPT_DIR/reload_servers.sh" 2>&1)

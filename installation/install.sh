@@ -7,20 +7,20 @@ MYSQL_ROOT_PSSWD="WebPanel"
 
 HOME=${HOME%/}
 if [[ $HOME == "" ]]; then
-	echo "Home directory can't be '/' itself."
-	exit 1
+    echo "Home directory can't be '/' itself."
+    exit 1
 fi
 
 # check if webpanel is already installed
 if [[ -f /etc/default/webpanel ]]; then
-	echo "WebPanel is already installed."
-	exit 1
+    echo "WebPanel is already installed."
+    exit 1
 fi
 
 # Allow only root execution
 if (( $(id -u) != 0 )); then
-	echo "This script requires root privileges"
-	exit 1
+    echo "This script requires root privileges"
+    exit 1
 fi
 
 ################## temporarily disable SELinux

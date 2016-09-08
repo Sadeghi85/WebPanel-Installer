@@ -60,20 +60,24 @@ if (( $? != 0 )); then
 fi
 STATUS=$(\rm -f "/etc/nginx/settings/sites-available-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)
 
-### TODO: DNS Server
-##################### removing server_name from /etc/hosts
-#SERVER_NAME_ESCAPED=$(sed 's/[\*\.&\/]/\\&/g' <<<"$SERVER_NAME")
-#STATUS=$(sed -i -e"s/127.0.0.1 $SERVER_NAME_ESCAPED//" "/etc/hosts" 2>&1)
+## Deleting server_name from DNS Server
+STATUS=$(sed -i '/^zone "'"$SERVER_NAME"'" IN {$/,/^};/d' /etc/named/named.conf.local 2>&1)
+if (( $? != 0 )); then
+	echo "$STATUS"
+	exit 1
+fi
 
-# deleting user
+STATUS=$(\rm -f "/etc/named/zones/$SERVER_NAME.zone" 2>&1)
+
+# Deleting user
 STATUS=$(userdel "$SERVER_TAG" 2>&1)
 if (( $? != 0 )); then
 	echo "$STATUS"
 	exit 1
 fi
 
-# setting owner to nobody
-STATUS=$(chown -R nobody:apache "/var/www/WebPanel/sites-available/$SERVER_TAG" 2>&1)
+# Setting owner to nobody
+STATUS=$(chown -R nobody:nobody "/var/www/WebPanel/sites-available/$SERVER_TAG" 2>&1)
 if (( $? != 0 )); then
 	echo "$STATUS"
 fi
