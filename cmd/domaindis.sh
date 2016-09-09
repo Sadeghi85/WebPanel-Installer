@@ -41,8 +41,6 @@ fi
 STATUS=$(\mv "/etc/php-fpm.d/settings/sites-enabled/$SERVER_TAG.conf" "/etc/php-fpm.d/settings/sites-enabled/$SERVER_TAG.conf.bak" 2>&1)
 # nginx
 STATUS=$(\mv "/etc/nginx/settings/sites-enabled/$SERVER_TAG.conf" "/etc/nginx/settings/sites-enabled/$SERVER_TAG.conf.bak" 2>&1)
-# web
-STATUS=$(\mv "$HOME/sites-enabled/$SERVER_TAG" "$HOME/sites-enabled/$SERVER_TAG.bak" 2>&1)
 
 STATUS=$(sh "$SCRIPT_DIR/reload_servers.sh" 2>&1)
 if (( $? != 0 )); then
@@ -52,7 +50,9 @@ if (( $? != 0 )); then
 else
 	STATUS=$(\rm -f "/etc/php-fpm.d/settings/sites-enabled/$SERVER_TAG.conf.bak" 2>&1)
 	STATUS=$(\rm -f "/etc/nginx/settings/sites-enabled/$SERVER_TAG.conf.bak" 2>&1)
-	STATUS=$(\rm -f "$HOME/sites-enabled/$SERVER_TAG.bak" 2>&1)
+	STATUS=$(\rm -f "/etc/php-fpm.d/settings/sites-enabled/$SERVER_TAG.conf" 2>&1)
+	STATUS=$(\rm -f "/etc/nginx/settings/sites-enabled/$SERVER_TAG.conf" 2>&1)
+	STATUS=$(\rm -f "$HOME/sites-enabled/$SERVER_TAG" 2>&1)
 	
 	STATUS=$(\rm -f "/etc/php-fpm.d/settings/sites-enabled-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)
 	STATUS=$(\rm -f "/etc/nginx/settings/sites-enabled-for-humans/$SERVER_PORT.$SERVER_NAME.conf" 2>&1)

@@ -116,6 +116,7 @@ mkdir -p /etc/php-fpm.d/settings/sites-available-for-humans
 mkdir -p /etc/php-fpm.d/settings/sites-enabled-for-humans
 
 \mv /etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf.bak
+\cp "$SCRIPT_DIR/settings/php-fpm/localhost.conf" /etc/php-fpm.d/localhost.conf
 
 \cp /etc/php-fpm.conf /etc/php-fpm.conf.bak
 \cp "$SCRIPT_DIR/settings/php-fpm/php-fpm.conf" /etc/php-fpm.conf
@@ -136,6 +137,10 @@ chmod 770 /var/log/php-fpm
 touch /etc/named/named.conf.local
 mkdir -p /etc/named/zones
 
+# MariaDB
+\cp /etc/my.cnf /etc/my.cnf.bak
+\cp "$SCRIPT_DIR/settings/mysql/my.cnf" /etc/my.cnf
+
 # Enabling servers
 systemctl enable php-fpm
 systemctl enable mariadb
@@ -145,7 +150,7 @@ systemctl enable nginx
 systemctl enable named
 
 # Starting servers
-systemctl start php-fpm
+#systemctl start php-fpm
 systemctl start mariadb
 systemctl start memcached
 systemctl start redis
