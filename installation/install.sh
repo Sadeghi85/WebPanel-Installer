@@ -138,6 +138,8 @@ touch /etc/named/named.conf.local
 mkdir -p /etc/named/zones
 
 # MariaDB
+\cp "$SCRIPT_DIR/settings/mysql/logrotate.d.mysql" /etc/logrotate.d/mysql
+
 \cp /etc/my.cnf /etc/my.cnf.bak
 \cp "$SCRIPT_DIR/settings/mysql/my.cnf" /etc/my.cnf
 
@@ -150,7 +152,7 @@ systemctl enable nginx
 systemctl enable named
 
 # Starting servers
-#systemctl start php-fpm
+systemctl start php-fpm
 systemctl start mariadb
 systemctl start memcached
 systemctl start redis
