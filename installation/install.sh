@@ -72,14 +72,14 @@ STATUS=$(yum check-update 2>&1)
 yum -y install yum-plugin-priorities yum-plugin-rpm-warm-cache yum-plugin-local deltarpm yum-plugin-fastestmirror
 
 # installing packages
-yum -y install htop nmap iftop iotop bind-utils mailx wget unzip
+yum -y install htop nmap iftop iotop bind-utils mailx wget unzip fail2ban fail2ban-systemd iptables-services
 # TODO: install `php70u-pecl-memcached` when released
 yum -y install bind MariaDB-server MariaDB-client nginx memcached redis32u php70u-cli php70u-fpm php70u-gd php70u-intl php70u-json php70u-mbstring php70u-mcrypt php70u-mysqlnd php70u-opcache php70u-pdo php70u-pear php70u-pecl-apcu php70u-pecl-redis php70u-soap php70u-xml
 
-# update operating system
+# Update operating system
 yum -y update
 
-################## server configs
+################## Server configs
 \cp /etc/selinux/config /etc/selinux/config.bak
 \cp "$SCRIPT_DIR/settings/selinux/config" /etc/selinux/config
 
@@ -89,7 +89,12 @@ yum -y update
 \cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
 \cp "$SCRIPT_DIR/settings/ssh/sshd_config" /etc/ssh/sshd_config
 
-################# config after install
+\cp "$SCRIPT_DIR/settings/fail2ban/jail.local" /etc/fail2ban/jail.local
+
+\cp /etc/sysconfig/iptables /etc/sysconfig/iptables.bak
+\cp "$SCRIPT_DIR/settings/iptables/iptables" /etc/sysconfig/iptables
+
+################# Config after install
 chmod 750 $(find "$SCRIPT_DIR/../cmd" -name "*" | grep \.sh$)
 
 # Web
@@ -144,6 +149,8 @@ mkdir -p /etc/named/zones
 \cp "$SCRIPT_DIR/settings/mysql/my.cnf" /etc/my.cnf
 
 # Enabling servers
+systemctl enable iptables
+systemctl enable fail2ban
 systemctl enable php-fpm
 systemctl enable mariadb
 systemctl enable memcached
@@ -152,6 +159,8 @@ systemctl enable nginx
 systemctl enable named
 
 # Starting servers
+systemctl start iptables
+systemctl start fail2ban
 systemctl start php-fpm
 systemctl start mariadb
 systemctl start memcached
