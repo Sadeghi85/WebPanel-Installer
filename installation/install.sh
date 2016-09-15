@@ -148,6 +148,9 @@ mkdir -p /etc/named/zones
 \cp /etc/my.cnf /etc/my.cnf.bak
 \cp "$SCRIPT_DIR/settings/mysql/my.cnf" /etc/my.cnf
 
+\cp "$SCRIPT_DIR/settings/mysql/.my.cnf" /root/.my.cnf
+chmod 600 /root/.my.cnf
+
 # Enabling servers
 systemctl enable iptables
 systemctl enable fail2ban
