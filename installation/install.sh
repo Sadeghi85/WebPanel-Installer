@@ -69,10 +69,10 @@ rpm -e --nodeps $(rpm -qa | grep '^epel-release')
 ################# yum plugins
 yum clean all
 STATUS=$(yum check-update 2>&1)
-yum -y install yum-plugin-priorities yum-plugin-rpm-warm-cache yum-plugin-local deltarpm yum-plugin-fastestmirror
+yum -y install yum-plugin-priorities yum-plugin-rpm-warm-cache yum-plugin-fastestmirror
 
 # installing packages
-yum -y install htop nmap iftop iotop bind-utils mailx wget unzip fail2ban fail2ban-systemd iptables-services
+yum -y install htop nmap iftop iotop bind-libs bind-libs-lite bind-utils mailx wget unzip fail2ban fail2ban-systemd iptables-services
 # TODO: install `php70u-pecl-memcached` when released
 yum -y install bind MariaDB-server MariaDB-client nginx memcached redis32u php70u-cli php70u-fpm php70u-gd php70u-intl php70u-json php70u-mbstring php70u-mcrypt php70u-mysqlnd php70u-opcache php70u-pdo php70u-pear php70u-pecl-apcu php70u-pecl-redis php70u-soap php70u-xml
 
@@ -152,6 +152,7 @@ mkdir -p /etc/named/zones
 chmod 600 /root/.my.cnf
 
 # Enabling servers
+systemctl disable firewalld
 systemctl enable iptables
 systemctl enable fail2ban
 systemctl enable php-fpm
@@ -162,6 +163,7 @@ systemctl enable nginx
 systemctl enable named
 
 # Starting servers
+systemctl stop firewalld
 systemctl start iptables
 systemctl start fail2ban
 systemctl start php-fpm
