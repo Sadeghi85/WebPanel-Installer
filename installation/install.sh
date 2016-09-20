@@ -11,7 +11,7 @@ if [[ $HOME == "" ]]; then
     exit 1
 fi
 
-# check if webpanel is already installed
+# Check if webpanel is already installed
 if [[ -f /etc/default/webpanel ]]; then
     echo "WebPanel is already installed."
     exit 1
@@ -23,10 +23,10 @@ if (( $(id -u) != 0 )); then
     exit 1
 fi
 
-################## temporarily disable SELinux
+# Temporarily disable SELinux
 setenforce 0
 
-################## unistall mysql for conflicts
+# Uninstall old packsges
 rpm -e --nodeps $(rpm -qa | grep '^mysql')
 \mv /var/lib/mysql /var/lib/mysql.old
 ################## unistall memcached
@@ -57,7 +57,7 @@ rpm -e --nodeps $(rpm -qa | grep '^rpmforge-release')
 rpm -e --nodeps $(rpm -qa | grep '^epel-release')
 
 
-################## repos
+################## Repos
 \cp "$SCRIPT_DIR/repos/CentOS-Base.repo" /etc/yum.repos.d/CentOS-Base.repo
 \cp "$SCRIPT_DIR/repos/epel.repo" /etc/yum.repos.d/epel.repo
 \cp "$SCRIPT_DIR/repos/ius.repo" /etc/yum.repos.d/ius.repo
@@ -71,15 +71,15 @@ yum clean all
 STATUS=$(yum check-update 2>&1)
 yum -y install yum-plugin-priorities yum-plugin-rpm-warm-cache yum-plugin-fastestmirror
 
-# installing packages
+# Installing packages
 yum -y install htop nmap iftop iotop bind-libs bind-libs-lite bind-utils mailx wget unzip fail2ban fail2ban-systemd iptables-services
 # TODO: install `php70u-pecl-memcached` when released
 yum -y install bind MariaDB-server MariaDB-client nginx memcached redis32u php70u-cli php70u-fpm php70u-gd php70u-intl php70u-json php70u-mbstring php70u-mcrypt php70u-mysqlnd php70u-opcache php70u-pdo php70u-pear php70u-pecl-apcu php70u-pecl-redis php70u-soap php70u-xml
 
-# Update operating system
+# Updating operating system
 yum -y update
 
-################## Server configs
+# Server configs
 \cp /etc/selinux/config /etc/selinux/config.bak
 \cp "$SCRIPT_DIR/settings/selinux/config" /etc/selinux/config
 
@@ -89,12 +89,7 @@ yum -y update
 \cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
 \cp "$SCRIPT_DIR/settings/ssh/sshd_config" /etc/ssh/sshd_config
 
-\cp "$SCRIPT_DIR/settings/fail2ban/jail.local" /etc/fail2ban/jail.local
-
-\cp /etc/sysconfig/iptables /etc/sysconfig/iptables.bak
-\cp "$SCRIPT_DIR/settings/iptables/iptables" /etc/sysconfig/iptables
-
-################# Config after install
+# Config after install
 chmod 750 $(find "$SCRIPT_DIR/../cmd" -name "*" | grep \.sh$)
 
 # Web
@@ -151,10 +146,23 @@ mkdir -p /etc/named/zones
 \cp "$SCRIPT_DIR/settings/mysql/.my.cnf" /root/.my.cnf
 chmod 600 /root/.my.cnf
 
-# Enabling servers
-systemctl disable firewalld
+# Firewall
+service iptables save
+systemctl stop firewalld
+systemctl disable  firewalld
+systemctl start iptables
 systemctl enable iptables
 systemctl enable fail2ban
+
+\cp "$SCRIPT_DIR/settings/fail2ban/jail.local" /etc/fail2ban/jail.local
+
+\cp /etc/sysconfig/iptables /etc/sysconfig/iptables.bak
+\cp "$SCRIPT_DIR/settings/iptables/iptables" /etc/sysconfig/iptables
+
+systemctl restart iptables
+systemctl start fail2ban
+
+# Enabling servers
 systemctl enable php-fpm
 systemctl enable mariadb
 systemctl enable memcached
@@ -163,9 +171,6 @@ systemctl enable nginx
 systemctl enable named
 
 # Starting servers
-systemctl stop firewalld
-systemctl start iptables
-systemctl start fail2ban
 systemctl start php-fpm
 systemctl start mariadb
 systemctl start memcached
