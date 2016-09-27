@@ -74,7 +74,7 @@ yum -y install yum-plugin-priorities yum-plugin-rpm-warm-cache yum-plugin-fastes
 # Installing packages
 yum -y install htop nmap iftop iotop bind-libs bind-libs-lite bind-utils mailx wget unzip fail2ban fail2ban-systemd iptables-services
 # TODO: install `php70u-pecl-memcached` when released
-yum -y install bind MariaDB-server MariaDB-client nginx memcached redis32u php70u-cli php70u-fpm php70u-gd php70u-intl php70u-json php70u-mbstring php70u-mcrypt php70u-mysqlnd php70u-opcache php70u-pdo php70u-pear php70u-pecl-apcu php70u-pecl-redis php70u-soap php70u-xml
+yum -y install bind MariaDB-server MariaDB-client nginx memcached redis32u php70u-bcmath php70u-cli php70u-fpm php70u-gd php70u-intl php70u-json php70u-mbstring php70u-mcrypt php70u-mysqlnd php70u-opcache php70u-pdo php70u-pear php70u-pecl-apcu php70u-pecl-redis php70u-soap php70u-xml
 
 # Updating operating system
 yum -y update
@@ -147,6 +147,8 @@ mkdir -p /etc/named/zones
 chmod 600 /root/.my.cnf
 
 # Firewall
+systemctl stop iptables
+systemctl start firewalld
 service iptables save
 systemctl stop firewalld
 systemctl disable  firewalld
