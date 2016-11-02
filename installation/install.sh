@@ -134,6 +134,7 @@ chmod 770 /var/log/php-fpm
 # Bind
 \cp /etc/named.conf /etc/named.conf.bak
 \cp "$SCRIPT_DIR/settings/bind/named.conf" "/etc/named.conf"
+\cp "$SCRIPT_DIR/settings/bind/named" "/etc/sysconfig/named"
 touch /etc/named/named.conf.local
 mkdir -p /etc/named/zones
 
